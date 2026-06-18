@@ -7,54 +7,89 @@
 <meta name="robots" content="noindex">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600&display=swap');
+
   :root{
-    --rust:#B5482B; --cream:#F6EFE3; --ink:#1C1A17; --gold:#D9A441; --line: rgba(28,26,23,0.12); --panel-dark:#1C1A17;
+    --rust:#1B3A6B;
+    --cream:#0E0D0B;
+    --ink:#F3EFE4;
+    --gold:#E0A030;
+    --line: rgba(243,239,228,0.14);
+    --panel-dark:#000;
+    --card-bg:#1A1814;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{ background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; min-height:100vh; }
+
   #loginScreen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
   .login-card{
-    background:#fff; border:1px solid var(--line); border-radius:14px; padding:32px 28px; max-width:360px;
-    width:100%; box-shadow:0 12px 28px -16px rgba(28,26,23,0.18);
+    background:var(--card-bg);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:32px 28px;
+    max-width:360px;
+    width:100%;
+    box-shadow:0 18px 36px -16px rgba(0,0,0,0.6);
+    text-align:center;
+  }
+  .login-logo{
+    width:84px;
+    height:auto;
+    margin:0 auto 14px;
+    display:block;
   }
   .login-card h1{ font-family:'Oswald',sans-serif; font-size:22px; text-transform:uppercase; margin:0 0 4px; }
-  .login-card p{ font-size:13.5px; color:#7a7263; margin:0 0 20px; }
+  .login-card p{ font-size:13.5px; color:#a39d8e; margin:0 0 20px; }
   .login-card input{
-    width:100%; padding:13px 14px; border:1.5px solid var(--line); border-radius:8px; font-size:15px;
-    margin-bottom:12px; background:#FBF8F2;
+    width:100%;
+    padding:13px 14px;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    font-size:15px;
+    margin-bottom:12px;
+    background:#0E0D0B;
+    color:var(--ink);
   }
-  .login-card input:focus{ outline:none; border-color:var(--rust); background:#fff; }
+  .login-card input:focus{ outline:none; border-color:var(--gold); background:#000; }
   .login-card button{
-    width:100%; background:var(--ink); color:#fff; font-weight:600; font-size:15px; padding:14px;
-    border:none; border-radius:8px; cursor:pointer;
+    width:100%;
+    background:var(--gold);
+    color:#15130F;
+    font-weight:700;
+    font-size:15px;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
   }
-  .login-err{ color:#c0392b; font-size:13px; margin-top:10px; display:none; }
+  .login-err{ color:#e0726d; font-size:13px; margin-top:10px; display:none; }
+
   #dashboard{ display:none; }
   .dash-wrap{ max-width:900px; margin:0 auto; padding:32px 20px 60px; }
   .dash-header{
     display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;
   }
   .dash-header h1{ font-family:'Oswald',sans-serif; font-size:30px; text-transform:uppercase; margin:0; }
-  .dash-header .count{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#7a7263; }
+  .dash-header .count{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#a39d8e; }
   .btn-refresh{
     background:transparent; border:1.5px solid var(--line); color:var(--ink); padding:9px 16px; border-radius:8px;
     font-size:13.5px; font-weight:600; cursor:pointer;
   }
-  .table-card{ background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:28px; }
+  .table-card{ background:var(--card-bg); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:28px; }
   table{ width:100%; border-collapse:collapse; font-size:14px; }
   thead th{
-    text-align:left; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#7a7263;
-    padding:12px 16px; border-bottom:1px solid var(--line); background:#FBF8F2;
+    text-align:left; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#a39d8e;
+    padding:12px 16px; border-bottom:1px solid var(--line); background:#0E0D0B;
   }
-  tbody td{ padding:12px 16px; border-bottom:1px solid var(--line); }
+  tbody td{ padding:12px 16px; border-bottom:1px solid var(--line); color:var(--ink); }
   tbody tr:last-child td{ border-bottom:none; }
-  tbody tr.winner-row{ background:rgba(217,164,65,0.12); }
+  tbody tr.winner-row{ background:rgba(224,160,48,0.14); }
   .badge-winner{
-    background:var(--gold); color:var(--ink); font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px;
+    background:var(--gold); color:#15130F; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px;
     text-transform:uppercase;
   }
-  .empty-state{ padding:40px 20px; text-align:center; color:#9a9285; font-size:14px; }
+  .empty-state{ padding:40px 20px; text-align:center; color:#6b6657; font-size:14px; }
+
   .draw-section{ background:var(--panel-dark); border-radius:16px; padding:40px 28px; text-align:center; }
   .draw-section .label{
     font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:0.18em; text-transform:uppercase;
@@ -66,11 +101,11 @@
   }
   .draw-display.spinning{ color:var(--gold); }
   .btn-draw{
-    background:var(--rust); color:#fff; font-weight:600; font-size:16px; padding:16px 38px; border:none;
+    background:var(--gold); color:#15130F; font-weight:700; font-size:16px; padding:16px 38px; border:none;
     border-radius:10px; cursor:pointer; letter-spacing:0.02em;
   }
   .btn-draw:disabled{ opacity:0.5; cursor:not-allowed; }
-  .btn-draw:hover:not(:disabled){ background:#9c3e23; }
+  .btn-draw:hover:not(:disabled){ background:#eeb04a; }
   .confetti-wrap{ position:relative; }
   .confetti{ position:absolute; width:8px; height:14px; top:-20px; opacity:0.9; animation:fall linear forwards; }
   @keyframes fall{ to{ transform: translateY(420px) rotate(540deg); opacity:0; } }
@@ -80,6 +115,7 @@
 
 <div id="loginScreen">
   <div class="login-card">
+    <img src="/assets/nicc-logo.png" alt="NICC" class="login-logo">
     <h1>Admin Giveaway</h1>
     <p>Ingresá la contraseña de administrador para ver participantes y sortear.</p>
     <input type="password" id="adminPassword" placeholder="Contraseña">
@@ -247,7 +283,7 @@
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
   function launchConfetti(){
-    const colors = ['#B5482B', '#D9A441', '#2E3A46', '#F6EFE3'];
+    const colors = ['#1B3A6B', '#E0A030', '#F3EFE4', '#0E0D0B'];
     for(let i = 0; i < 40; i++){
       const piece = document.createElement('div');
       piece.className = 'confetti';
