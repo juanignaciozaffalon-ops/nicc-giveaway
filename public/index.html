@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giveaway NICC</title>
+<meta name="robots" content="noindex">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+  :root{
+    --rust:#B5482B; --cream:#F6EFE3; --ink:#1C1A17; --gold:#D9A441; --line: rgba(28,26,23,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; min-height:100vh;
+    display:flex; align-items:flex-start; justify-content:center;
+    background-image: radial-gradient(circle at 10% 0%, rgba(181,72,43,0.07), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(217,164,65,0.10), transparent 45%);
+  }
+  .wrap{ width:100%; max-width:480px; padding:0 20px 60px; }
+  header.top{ padding:34px 0 18px; text-align:center; }
+  .brand-mark{
+    display:inline-flex; align-items:center; gap:8px; font-family:'Oswald',sans-serif; font-weight:700;
+    font-size:13px; letter-spacing:0.18em; color:var(--rust); text-transform:uppercase;
+  }
+  .brand-mark::before, .brand-mark::after{ content:""; width:18px; height:1px; background:var(--rust); }
+  h1.event-title{
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:42px; line-height:0.95;
+    letter-spacing:-0.01em; margin:14px 0 6px; text-transform:uppercase; color:var(--ink);
+  }
+  h1.event-title span{ display:block; color:var(--rust); }
+  p.sub{ font-size:14.5px; color:#5b554c; margin:0 0 4px; line-height:1.5; }
+  .stepper{ display:flex; align-items:center; gap:6px; margin:24px 0 22px; }
+  .step-dot{ flex:1; height:3px; border-radius:2px; background:var(--line); position:relative; overflow:hidden; }
+  .step-dot.done, .step-dot.active{ background:var(--rust); }
+  .step-dot.active::after{
+    content:""; position:absolute; inset:0; background:var(--gold); animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:0.35} 50%{opacity:0.9} }
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:14px; padding:26px 24px 24px;
+    box-shadow: 0 1px 2px rgba(28,26,23,0.04), 0 12px 28px -16px rgba(28,26,23,0.18);
+  }
+  .panel{ display:none; }
+  .panel.visible{ display:block; animation:rise .4s ease both; }
+  @keyframes rise{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block; font-size:11.5px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+    color:#6b6358; margin-bottom:6px;
+  }
+  .field input{
+    width:100%; padding:13px 14px; border:1.5px solid var(--line); border-radius:8px; font-size:15px;
+    font-family:'Inter',sans-serif; background:#FBF8F2; color:var(--ink);
+    transition:border-color .15s, background .15s;
+  }
+  .field input:focus{ outline:none; border-color:var(--rust); background:#fff; }
+  .field input.error{ border-color:#c0392b; }
+  .field .err-msg{ font-size:12px; color:#c0392b; margin-top:4px; display:none; }
+  .field .err-msg.show{ display:block; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  button{ font-family:'Inter',sans-serif; cursor:pointer; border:none; }
+  .btn-primary{
+    width:100%; background:var(--ink); color:#fff; font-weight:600; font-size:15px; padding:15px 18px;
+    border-radius:8px; margin-top:6px; transition:transform .12s, background .15s; letter-spacing:0.01em;
+  }
+  .btn-primary:hover{ background:#000; }
+  .btn-primary:active{ transform:scale(0.985); }
+  .btn-primary:disabled{ background:#cdc6b8; color:#8a8273; cursor:not-allowed; }
+  .btn-ig{
+    width:100%; background:linear-gradient(135deg,#f0986a 0%, var(--rust) 45%, #7c3a8a 100%); color:#fff;
+    font-weight:600; font-size:15px; padding:15px 18px; border-radius:8px; display:flex; align-items:center;
+    justify-content:center; gap:9px; text-decoration:none; transition:filter .15s, transform .12s;
+  }
+  .btn-ig:hover{ filter:brightness(1.06); }
+  .btn-ig:active{ transform:scale(0.985); }
+  .hint{ font-size:13px; color:#7a7263; text-align:center; margin:14px 0 0; line-height:1.5; }
+  .hint strong{ color:var(--ink); }
+  .confirm-box{ text-align:center; padding:8px 0 4px; }
+  .confirm-icon{
+    width:52px; height:52px; border-radius:50%; background:var(--rust); display:flex; align-items:center;
+    justify-content:center; margin:0 auto 16px;
+  }
+  .confirm-icon svg{ width:24px; height:24px; }
+  .confirm-box h2{ font-family:'Oswald',sans-serif; font-size:21px; text-transform:uppercase; margin:0 0 8px; }
+  .confirm-box p{ font-size:14px; color:#5b554c; margin:0 0 22px; line-height:1.55; }
+  footer.tag{
+    text-align:center; margin-top:26px; font-size:11.5px; color:#9a9285; letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .overlay{
+    position:fixed; inset:0; background:rgba(28,26,23,0.55); display:none; align-items:center;
+    justify-content:center; padding:20px; z-index:50;
+  }
+  .overlay.visible{ display:flex; animation:fadeIn .2s ease both; }
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+  .modal{
+    background:#fff; border-radius:16px; max-width:340px; width:100%; padding:32px 26px 28px;
+    text-align:center; transform:scale(0.92); animation:pop .32s cubic-bezier(.2,1.4,.4,1) forwards;
+  }
+  @keyframes pop{ to{ transform:scale(1); } }
+  .modal .ring{
+    width:64px; height:64px; border-radius:50%; background:var(--gold); display:flex; align-items:center;
+    justify-content:center; margin:0 auto 18px;
+  }
+  .modal h3{ font-family:'Oswald',sans-serif; font-size:22px; text-transform:uppercase; margin:0 0 8px; color:var(--ink); }
+  .modal p{ font-size:14px; color:#5b554c; margin:0 0 22px; line-height:1.5; }
+  .modal button{ background:var(--ink); color:#fff; font-weight:600; font-size:14px; padding:12px 24px; border-radius:8px; }
+  .spinner{
+    width:16px; height:16px; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; border-radius:50%;
+    display:inline-block; animation:spin .7s linear infinite; vertical-align:middle; margin-right:8px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:0.01ms !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="brand-mark">NICC</span>
+    <h1 class="event-title">GIVEAWAY<span>NICC</span></h1>
+    <p class="sub">Completá tus datos, seguinos en Instagram y quedás participando.</p>
+  </header>
+  <div class="stepper">
+    <div class="step-dot active" id="dot-1"></div>
+    <div class="step-dot" id="dot-2"></div>
+    <div class="step-dot" id="dot-3"></div>
+  </div>
+  <div class="card">
+    <div class="panel visible" id="panel-form">
+      <form id="giveawayForm" novalidate>
+        <div class="row2">
+          <div class="field">
+            <label for="firstName">Nombre</label>
+            <input type="text" id="firstName" autocomplete="given-name" required>
+            <div class="err-msg">Ingresá tu nombre</div>
+          </div>
+          <div class="field">
+            <label for="lastName">Apellido</label>
+            <input type="text" id="lastName" autocomplete="family-name" required>
+            <div class="err-msg">Ingresá tu apellido</div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="phone">Teléfono</label>
+          <input type="tel" id="phone" autocomplete="tel" placeholder="(713) 555-0123" required>
+          <div class="err-msg">Ingresá un teléfono válido</div>
+        </div>
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" autocomplete="email" placeholder="tu@correo.com" required>
+          <div class="err-msg">Ingresá un correo válido</div>
+        </div>
+        <button type="submit" class="btn-primary" id="submitFormBtn">Continuar</button>
+      </form>
+    </div>
+    <div class="panel" id="panel-follow">
+      <div class="confirm-box">
+        <div class="confirm-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2>Datos guardados</h2>
+        <p>Ahora seguinos en Instagram. Cuando vuelvas a esta página, se habilita el botón para participar.</p>
+      </div>
+      <a href="https://www.instagram.com/nationalinjuryclaims/" target="_blank" rel="noopener" class="btn-ig" id="followBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zm0 1.62c-3.15 0-3.5.01-4.74.07-.96.04-1.48.2-1.82.34-.46.18-.79.39-1.13.74-.34.34-.56.67-.74 1.13-.14.34-.3.86-.34 1.82-.06 1.24-.07 1.59-.07 4.74s.01 3.5.07 4.74c.04.96.2 1.48.34 1.82.18.46.39.79.74 1.13.34.34.67.56 1.13.74.34.14.86.3 1.82.34 1.24.06 1.59.07 4.74.07s3.5-.01 4.74-.07c.96-.04 1.48-.2 1.82-.34.46-.18.79-.39 1.13-.74.34-.34.56-.67.74-1.13.14-.34.3-.86.34-1.82.06-1.24.07-1.59.07-4.74s-.01-3.5-.07-4.74c-.04-.96-.2-1.48-.34-1.82-.18-.46-.39-.79-.74-1.13a2.97 2.97 0 0 0-1.13-.74c-.34-.14-.86-.3-1.82-.34-1.24-.06-1.59-.07-4.74-.07zm0 4.38a5.84 5.84 0 1 1 0 11.68 5.84 5.84 0 0 1 0-11.68zm0 1.62a4.22 4.22 0 1 0 0 8.44 4.22 4.22 0 0 0 0-8.44zm6.5-2.4a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0z"/></svg>
+        Seguir a @nationalinjuryclaims
+      </a>
+      <button type="button" class="btn-primary" id="participateBtn" disabled style="margin-top:10px;">Participar</button>
+      <p class="hint">El botón <strong>Participar</strong> se habilita al volver a esta pestaña después de seguirnos.</p>
+    </div>
+    <div class="panel" id="panel-done">
+      <div class="confirm-box">
+        <div class="confirm-icon" style="background:var(--gold);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1C1A17" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2>¡Ya estás participando!</h2>
+        <p>Te enviamos un correo de confirmación. Mucha suerte 🤠</p>
+      </div>
+    </div>
+  </div>
+  <footer class="tag">National Injury Claims Council</footer>
+</div>
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="ring">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1C1A17" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h3>Estás participando</h3>
+    <p>Guardá nuestro número en tus contactos para cualquier emergencia legal. Te llegará un correo con el detalle.</p>
+    <button id="modalCloseBtn">Listo</button>
+  </div>
+</div>
+<script>
+  const SUPABASE_URL = "https://ndhfjdsbrxgewzxrzlqx.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kaGZqZHNicnhnZXd6eHJ6bHF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3Mzk3MDQsImV4cCI6MjA5NzMxNTcwNH0.mo4_i8gq0g0gCH2yvgH-RPqgSbIZY5uTMs56fySn3e0";
+  const SEND_EMAIL_ENDPOINT = "/.netlify/functions/send-confirmation";
+
+  const panelForm = document.getElementById('panel-form');
+  const panelFollow = document.getElementById('panel-follow');
+  const panelDone = document.getElementById('panel-done');
+  const dot1 = document.getElementById('dot-1');
+  const dot2 = document.getElementById('dot-2');
+  const dot3 = document.getElementById('dot-3');
+  const form = document.getElementById('giveawayForm');
+  const submitFormBtn = document.getElementById('submitFormBtn');
+  const followBtn = document.getElementById('followBtn');
+  const participateBtn = document.getElementById('participateBtn');
+  const overlay = document.getElementById('overlay');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+  let participantData = null;
+  let followClicked = false;
+
+  function showPanel(panel){
+    [panelForm, panelFollow, panelDone].forEach(p => p.classList.remove('visible'));
+    panel.classList.add('visible');
+  }
+
+  function validateField(input, testFn){
+    const errEl = input.parentElement.querySelector('.err-msg');
+    const ok = testFn(input.value.trim());
+    input.classList.toggle('error', !ok);
+    if(errEl) errEl.classList.toggle('show', !ok);
+    return ok;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
+    const phone = document.getElementById('phone');
+    const email = document.getElementById('email');
+
+    const okFirst = validateField(firstName, v => v.length >= 2);
+    const okLast  = validateField(lastName, v => v.length >= 2);
+    const okPhone = validateField(phone, v => v.replace(/\D/g,'').length >= 10);
+    const okEmail = validateField(email, v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+
+    if(!(okFirst && okLast && okPhone && okEmail)) return;
+
+    participantData = {
+      first_name: firstName.value.trim(),
+      last_name: lastName.value.trim(),
+      phone: phone.value.trim(),
+      email: email.value.trim().toLowerCase()
+    };
+
+    submitFormBtn.disabled = true;
+    submitFormBtn.innerHTML = '<span class="spinner"></span>Guardando...';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/giveaway_participants`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(participantData)
+      });
+
+      if(!res.ok){
+        const errText = await res.text();
+        if(errText.includes('duplicate') || res.status === 409){
+          alert('Este correo ya está participando en el giveaway.');
+        } else {
+          alert('Hubo un problema guardando tus datos. Probá de nuevo.');
+        }
+        submitFormBtn.disabled = false;
+        submitFormBtn.textContent = 'Continuar';
+        return;
+      }
+
+      dot1.classList.add('done');
+      dot2.classList.add('active');
+      showPanel(panelFollow);
+
+    } catch(err){
+      alert('No se pudo conectar. Revisá tu conexión e intentá de nuevo.');
+      submitFormBtn.disabled = false;
+      submitFormBtn.textContent = 'Continuar';
+    }
+  });
+
+  followBtn.addEventListener('click', () => {
+    followClicked = true;
+    sessionStorage.setItem('nicc_followed', '1');
+  });
+
+  function checkFollowReturn(){
+    if(followClicked || sessionStorage.getItem('nicc_followed') === '1'){
+      participateBtn.disabled = false;
+    }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') checkFollowReturn();
+  });
+  window.addEventListener('focus', checkFollowReturn);
+
+  participateBtn.addEventListener('click', async () => {
+    overlay.classList.add('visible');
+    try {
+      await fetch(SEND_EMAIL_ENDPOINT, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(participantData)
+      });
+    } catch(err){
+      console.error('Error enviando correo de confirmación', err);
+    }
+  });
+
+  modalCloseBtn.addEventListener('click', () => {
+    overlay.classList.remove('visible');
+    dot2.classList.add('done');
+    dot3.classList.add('active');
+    showPanel(panelDone);
+  });
+</script>
+</body>
+</html>
