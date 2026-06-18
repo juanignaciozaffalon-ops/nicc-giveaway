@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Giveaway NICC</title>
+<meta name="robots" content="noindex">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600&display=swap');
+  :root{
+    --rust:#B5482B; --cream:#F6EFE3; --ink:#1C1A17; --gold:#D9A441; --line: rgba(28,26,23,0.12); --panel-dark:#1C1A17;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; min-height:100vh; }
+  #loginScreen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .login-card{
+    background:#fff; border:1px solid var(--line); border-radius:14px; padding:32px 28px; max-width:360px;
+    width:100%; box-shadow:0 12px 28px -16px rgba(28,26,23,0.18);
+  }
+  .login-card h1{ font-family:'Oswald',sans-serif; font-size:22px; text-transform:uppercase; margin:0 0 4px; }
+  .login-card p{ font-size:13.5px; color:#7a7263; margin:0 0 20px; }
+  .login-card input{
+    width:100%; padding:13px 14px; border:1.5px solid var(--line); border-radius:8px; font-size:15px;
+    margin-bottom:12px; background:#FBF8F2;
+  }
+  .login-card input:focus{ outline:none; border-color:var(--rust); background:#fff; }
+  .login-card button{
+    width:100%; background:var(--ink); color:#fff; font-weight:600; font-size:15px; padding:14px;
+    border:none; border-radius:8px; cursor:pointer;
+  }
+  .login-err{ color:#c0392b; font-size:13px; margin-top:10px; display:none; }
+  #dashboard{ display:none; }
+  .dash-wrap{ max-width:900px; margin:0 auto; padding:32px 20px 60px; }
+  .dash-header{
+    display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;
+  }
+  .dash-header h1{ font-family:'Oswald',sans-serif; font-size:30px; text-transform:uppercase; margin:0; }
+  .dash-header .count{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#7a7263; }
+  .btn-refresh{
+    background:transparent; border:1.5px solid var(--line); color:var(--ink); padding:9px 16px; border-radius:8px;
+    font-size:13.5px; font-weight:600; cursor:pointer;
+  }
+  .table-card{ background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:28px; }
+  table{ width:100%; border-collapse:collapse; font-size:14px; }
+  thead th{
+    text-align:left; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#7a7263;
+    padding:12px 16px; border-bottom:1px solid var(--line); background:#FBF8F2;
+  }
+  tbody td{ padding:12px 16px; border-bottom:1px solid var(--line); }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr.winner-row{ background:rgba(217,164,65,0.12); }
+  .badge-winner{
+    background:var(--gold); color:var(--ink); font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px;
+    text-transform:uppercase;
+  }
+  .empty-state{ padding:40px 20px; text-align:center; color:#9a9285; font-size:14px; }
+  .draw-section{ background:var(--panel-dark); border-radius:16px; padding:40px 28px; text-align:center; }
+  .draw-section .label{
+    font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:18px;
+  }
+  .draw-display{
+    font-family:'Oswald',sans-serif; font-size:38px; font-weight:700; color:#fff; text-transform:uppercase;
+    min-height:56px; margin-bottom:28px; letter-spacing:0.01em;
+  }
+  .draw-display.spinning{ color:var(--gold); }
+  .btn-draw{
+    background:var(--rust); color:#fff; font-weight:600; font-size:16px; padding:16px 38px; border:none;
+    border-radius:10px; cursor:pointer; letter-spacing:0.02em;
+  }
+  .btn-draw:disabled{ opacity:0.5; cursor:not-allowed; }
+  .btn-draw:hover:not(:disabled){ background:#9c3e23; }
+  .confetti-wrap{ position:relative; }
+  .confetti{ position:absolute; width:8px; height:14px; top:-20px; opacity:0.9; animation:fall linear forwards; }
+  @keyframes fall{ to{ transform: translateY(420px) rotate(540deg); opacity:0; } }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <h1>Admin Giveaway</h1>
+    <p>Ingresá la contraseña de administrador para ver participantes y sortear.</p>
+    <input type="password" id="adminPassword" placeholder="Contraseña">
+    <button id="loginBtn">Entrar</button>
+    <div class="login-err" id="loginErr">Contraseña incorrecta.</div>
+  </div>
+</div>
+
+<div id="dashboard">
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <h1>Participantes</h1>
+      <div>
+        <span class="count" id="participantCount">0 registrados</span>
+        <button class="btn-refresh" id="refreshBtn" style="margin-left:10px;">Actualizar</button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <table id="participantsTable">
+        <thead>
+          <tr><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Registrado</th></tr>
+        </thead>
+        <tbody id="participantsBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none;">Todavía no hay participantes registrados.</div>
+    </div>
+
+    <div class="draw-section confetti-wrap" id="confettiWrap">
+      <div class="label">Sorteo en vivo</div>
+      <div class="draw-display" id="drawDisplay">Listo para sortear</div>
+      <button class="btn-draw" id="drawBtn">Sortear ganador</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ADMIN_ENDPOINT = '/.netlify/functions/admin-participants';
+  let adminPassword = '';
+  let participants = [];
+
+  const loginScreen = document.getElementById('loginScreen');
+  const dashboard = document.getElementById('dashboard');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginErr = document.getElementById('loginErr');
+  const passwordInput = document.getElementById('adminPassword');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const participantsBody = document.getElementById('participantsBody');
+  const participantCount = document.getElementById('participantCount');
+  const emptyState = document.getElementById('emptyState');
+  const drawBtn = document.getElementById('drawBtn');
+  const drawDisplay = document.getElementById('drawDisplay');
+  const confettiWrap = document.getElementById('confettiWrap');
+
+  async function fetchParticipants(){
+    const res = await fetch(ADMIN_ENDPOINT, { headers: { 'x-admin-password': adminPassword } });
+    if(!res.ok) throw new Error('unauthorized');
+    return res.json();
+  }
+
+  function renderTable(){
+    participantsBody.innerHTML = '';
+    participantCount.textContent = `${participants.length} registrado${participants.length === 1 ? '' : 's'}`;
+
+    if(participants.length === 0){
+      emptyState.style.display = 'block';
+      document.getElementById('participantsTable').style.display = 'none';
+      return;
+    }
+    emptyState.style.display = 'none';
+    document.getElementById('participantsTable').style.display = 'table';
+
+    participants.forEach(p => {
+      const tr = document.createElement('tr');
+      if(p.is_winner) tr.classList.add('winner-row');
+      const date = new Date(p.created_at).toLocaleString('es-AR', { dateStyle:'short', timeStyle:'short' });
+      tr.innerHTML = `
+        <td>${escapeHtml(p.first_name)} ${escapeHtml(p.last_name)} ${p.is_winner ? '<span class="badge-winner">Ganador</span>' : ''}</td>
+        <td>${escapeHtml(p.phone)}</td>
+        <td>${escapeHtml(p.email)}</td>
+        <td>${date}</td>
+      `;
+      participantsBody.appendChild(tr);
+    });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  loginBtn.addEventListener('click', async () => {
+    adminPassword = passwordInput.value;
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Entrando...';
+    try{
+      participants = await fetchParticipants();
+      loginScreen.style.display = 'none';
+      dashboard.style.display = 'block';
+      renderTable();
+    } catch(err){
+      loginErr.style.display = 'block';
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Entrar';
+    }
+  });
+
+  passwordInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') loginBtn.click(); });
+
+  refreshBtn.addEventListener('click', async () => {
+    refreshBtn.textContent = 'Actualizando...';
+    try{
+      participants = await fetchParticipants();
+      renderTable();
+    } catch(err){
+      alert('Error actualizando la lista.');
+    }
+    refreshBtn.textContent = 'Actualizar';
+  });
+
+  drawBtn.addEventListener('click', async () => {
+    if(participants.length === 0){
+      alert('No hay participantes para sortear.');
+      return;
+    }
+
+    drawBtn.disabled = true;
+    drawDisplay.classList.add('spinning');
+
+    const names = participants.map(p => `${p.first_name} ${p.last_name}`);
+    const winnerIndex = Math.floor(Math.random() * participants.length);
+    const winner = participants[winnerIndex];
+
+    let totalTicks = 28;
+    let delay = 60;
+
+    for(let i = 0; i < totalTicks; i++){
+      const randomName = names[Math.floor(Math.random() * names.length)];
+      drawDisplay.textContent = randomName;
+      await sleep(delay);
+      delay += 12;
+    }
+
+    drawDisplay.classList.remove('spinning');
+    drawDisplay.textContent = `🏆 ${winner.first_name} ${winner.last_name}`;
+    launchConfetti();
+
+    try{
+      await fetch(ADMIN_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPassword },
+        body: JSON.stringify({ id: winner.id })
+      });
+      participants = await fetchParticipants();
+      renderTable();
+    } catch(err){
+      console.error('No se pudo marcar el ganador en la base de datos', err);
+    }
+
+    drawBtn.disabled = false;
+    drawBtn.textContent = 'Sortear de nuevo';
+  });
+
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+  function launchConfetti(){
+    const colors = ['#B5482B', '#D9A441', '#2E3A46', '#F6EFE3'];
+    for(let i = 0; i < 40; i++){
+      const piece = document.createElement('div');
+      piece.className = 'confetti';
+      piece.style.left = `${Math.random() * 100}%`;
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDuration = `${1.2 + Math.random()}s`;
+      piece.style.animationDelay = `${Math.random() * 0.3}s`;
+      confettiWrap.appendChild(piece);
+      setTimeout(() => piece.remove(), 2200);
+    }
+  }
+</script>
+
+</body>
+</html>
