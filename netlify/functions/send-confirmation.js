@@ -2,6 +2,12 @@
 //
 // Envía el correo de confirmación al participante usando Resend,
 // y marca email_sent = true en Supabase si se envió correctamente.
+//
+// Variables de entorno necesarias (configurar en Netlify > Site settings > Environment variables):
+//   RESEND_API_KEY        -> API key de Resend
+//   RESEND_FROM_ADDRESS   -> ej: "NICC <giveaway@nicc.com>" (debe ser un dominio verificado en Resend)
+//   SUPABASE_URL          -> https://YOUR_PROJECT.supabase.co
+//   SUPABASE_SERVICE_KEY  -> service_role key de Supabase (NUNCA la anon key, esta es secreta)
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -31,21 +37,65 @@ exports.handler = async (event) => {
   }
 
   const emailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; color:#1C1A17;">
-      <h2 style="color:#B5482B; margin-bottom: 4px;">Estás participando 🎉</h2>
-      <p style="font-size: 15px; line-height: 1.6;">
-        Hola ${first_name},<br><br>
-        Estás participando en el giveaway de NICC. Guardá nuestro número en tus contactos
-        para cualquier emergencia legal:
-      </p>
-      <p style="font-size: 18px; font-weight: bold; background:#F6EFE3; padding: 12px 16px; border-radius: 8px;">
-        +1 (346) 621-5972
-      </p>
-      <p style="font-size: 13px; color:#7a7263; margin-top: 24px;">
-        — National Injury Claims Council
-      </p>
-    </div>
+    <!doctype html>
+    <html>
+    <body style="margin:0; padding:0; background-color:#f4f1ec; font-family: Arial, Helvetica, sans-serif;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f1ec; padding: 24px 0;">
+        <tr>
+          <td align="center">
+            <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:10px; overflow:hidden; max-width:480px;">
+              <tr>
+                <td style="background-color:#1A1814; padding:20px 28px;">
+                  <span style="color:#E0A030; font-size:13px; font-weight:bold; letter-spacing:1px;">NATIONAL INJURY CLAIMS COUNCIL</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 28px 28px 8px;">
+                  <p style="font-size:16px; line-height:1.6; color:#1C1A17; margin:0 0 14px;">Hola ${first_name},</p>
+                  <p style="font-size:15px; line-height:1.6; color:#3a352c; margin:0 0 14px;">
+                    Gracias por registrarte en nuestro giveaway. Tu registro quedó confirmado y ya estás participando del sorteo.
+                  </p>
+                  <p style="font-size:15px; line-height:1.6; color:#3a352c; margin:0 0 18px;">
+                    Te recomendamos guardar nuestro número de contacto, por si en algún momento necesitás asesoría legal luego de un accidente:
+                  </p>
+                  <p style="font-size:16px; color:#1C1A17; margin:0 0 20px; padding: 10px 0; border-top:1px solid #eee; border-bottom:1px solid #eee;">
+                    National Injury Claims Council<br>
+                    Teléfono: +1 (346) 621-5972
+                  </p>
+                  <p style="font-size:14px; line-height:1.6; color:#6b6358; margin:0 0 6px;">
+                    El ganador se anunciará próximamente en nuestra cuenta de Instagram.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 18px 28px 26px;">
+                  <p style="font-size:12.5px; color:#9a9285; margin:0;">
+                    Recibiste este correo porque te registraste en un giveaway de National Injury Claims Council.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
   `;
+
+  const emailText =
+`Hola ${first_name},
+
+Gracias por registrarte en nuestro giveaway. Tu registro quedó confirmado y ya estás participando del sorteo.
+
+Te recomendamos guardar nuestro número de contacto, por si en algún momento necesitás asesoría legal luego de un accidente:
+
+National Injury Claims Council
+Teléfono: +1 (346) 621-5972
+
+El ganador se anunciará próximamente en nuestra cuenta de Instagram.
+
+—
+Recibiste este correo porque te registraste en un giveaway de National Injury Claims Council.`;
 
   try {
     const resendRes = await fetch('https://api.resend.com/emails', {
@@ -57,8 +107,9 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         from: RESEND_FROM_ADDRESS,
         to: [email],
-        subject: 'Estás participando - NICC',
-        html: emailHtml
+        subject: 'Tu registro está confirmado - National Injury Claims Council',
+        html: emailHtml,
+        text: emailText
       })
     });
 
@@ -68,6 +119,7 @@ exports.handler = async (event) => {
       return { statusCode: 502, body: `Error enviando correo: ${errBody}` };
     }
 
+    // Marcar email_sent = true en Supabase (best-effort, no bloquea la respuesta)
     if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
       try {
         await fetch(
