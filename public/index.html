@@ -9,8 +9,8 @@
   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
   :root{
-    --rust:#1B3A6B;
-    --rust-dark:#12284d;
+    --rust:#B5282E;
+    --rust-dark:#7e1820;
     --cream:#0E0D0B;
     --ink:#F3EFE4;
     --denim:#1B3A6B;
@@ -307,6 +307,15 @@
     padding:12px 24px;
     border-radius:8px;
   }
+  .btn-save-contact{
+    width:100%;
+    background:transparent !important;
+    color:var(--gold) !important;
+    border:1.5px solid var(--gold) !important;
+    margin-bottom:10px;
+    font-weight:600 !important;
+  }
+  .btn-save-contact:hover{ background:rgba(224,160,48,0.1) !important; }
 
   .spinner{
     width:16px; height:16px;
@@ -402,6 +411,7 @@
   <footer class="tag">National Injury Claims Council</footer>
 </div>
 
+<!-- Modal popup -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="ring">
@@ -409,6 +419,7 @@
     </div>
     <h3>Estás participando</h3>
     <p>Guardá nuestro número en tus contactos para cualquier emergencia legal. Te llegará un correo con el detalle.</p>
+    <button id="saveContactBtn" class="btn-save-contact">Guardar nuestro número</button>
     <button id="modalCloseBtn">Listo</button>
   </div>
 </div>
@@ -430,6 +441,7 @@
   const participateBtn = document.getElementById('participateBtn');
   const overlay = document.getElementById('overlay');
   const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const saveContactBtn = document.getElementById('saveContactBtn');
 
   let participantData = null;
   let followClicked = false;
@@ -523,6 +535,7 @@
 
   participateBtn.addEventListener('click', async () => {
     overlay.classList.add('visible');
+
     try {
       await fetch(SEND_EMAIL_ENDPOINT, {
         method: 'POST',
@@ -532,6 +545,28 @@
     } catch(err){
       console.error('Error enviando correo de confirmación', err);
     }
+  });
+
+  saveContactBtn.addEventListener('click', () => {
+    const vCard = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      'N:National Injury Claims Council',
+      'FN:National Injury Claims Council',
+      'ORG:National Injury Claims Council',
+      'TEL;TYPE=CELL:+13466215972',
+      'END:VCARD'
+    ].join('\n');
+
+    const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'NICC.vcf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
   modalCloseBtn.addEventListener('click', () => {
